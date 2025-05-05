@@ -5,25 +5,17 @@
 std::vector<torch::Tensor> corr_cuda_forward(
     torch::Tensor fmap1,
     torch::Tensor fmap2,
-    torch::Tensor coords,
-    int radius);
+    torch::Tensor coords,int radius);
 
-std::vector<torch::Tensor> corr_cuda_backward(
-  torch::Tensor fmap1,
-  torch::Tensor fmap2,
-  torch::Tensor coords,
-  torch::Tensor corr_grad,
-  int radius);
+std::vector<torch::Tensor> corr_cuda_backward(torch::Tensor fmap1,torch::Tensor fmap2,torch::Tensor coords,torch::Tensor corr_grad,int radius);
 
 // C++ interface
-#define CHECK_CUDA(x) TORCH_CHECK(x.type().is_cuda(), #x " must be a CUDA tensor")
+#define CHECK_CUDA(x) TORCH_CHECK(x.is_cuda(), #x " must be a CUDA tensor")
 #define CHECK_CONTIGUOUS(x) TORCH_CHECK(x.is_contiguous(), #x " must be contiguous")
 #define CHECK_INPUT(x) CHECK_CUDA(x); CHECK_CONTIGUOUS(x)
 
-std::vector<torch::Tensor> corr_forward(
-    torch::Tensor fmap1,
-    torch::Tensor fmap2,
-    torch::Tensor coords,
+std::vector<torch::Tensor> corr_forward(torch::Tensor fmap1,
+    torch::Tensor fmap2,torch::Tensor coords,
     int radius) {
   CHECK_INPUT(fmap1);
   CHECK_INPUT(fmap2);

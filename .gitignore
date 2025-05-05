@@ -6,3 +6,7 @@ pytorch_env
 models
 build
 correlation.egg-info
+/home/muhammad/projects/RAFT/alt_cuda_corr/alt_cuda_corr.egg-info
+/home/muhammad/projects/RAFT/alt_cuda_corr/.idea
+/home/muhammad/projects/RAFT/alt_cuda_corr/alt_cuda_corr.cpython-310-x86_64-linux-gnu.so
+/home/muhammad/projects/RAFT/alt_cuda_corr/correlation.egg-info

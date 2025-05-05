@@ -20,8 +20,7 @@ __global__ void corr_forward_kernel(
     const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> fmap1,
     const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> fmap2,
     const torch::PackedTensorAccessor32<scalar_t,5,torch::RestrictPtrTraits> coords,
-    torch::PackedTensorAccessor32<scalar_t,5,torch::RestrictPtrTraits> corr,
-    int r)
+    torch::PackedTensorAccessor32<scalar_t,5,torch::RestrictPtrTraits> corr, int r)
 {
   const int b = blockIdx.x;
   const int h0 = blockIdx.y * blockDim.x;
@@ -120,15 +119,13 @@ __global__ void corr_forward_kernel(
 
 
 template <typename scalar_t>
-__global__ void corr_backward_kernel(
-    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> fmap1,
+__global__ void corr_backward_kernel(const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> fmap1,
     const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> fmap2,
     const torch::PackedTensorAccessor32<scalar_t,5,torch::RestrictPtrTraits> coords,
     const torch::PackedTensorAccessor32<scalar_t,5,torch::RestrictPtrTraits> corr_grad,
     torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> fmap1_grad,
     torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> fmap2_grad,
-    torch::PackedTensorAccessor32<scalar_t,5,torch::RestrictPtrTraits> coords_grad,
-    int r)
+    torch::PackedTensorAccessor32<scalar_t,5,torch::RestrictPtrTraits> coords_grad,int r)
 {
 
   const int b = blockIdx.x;
@@ -257,11 +254,7 @@ __global__ void corr_backward_kernel(
 
 
 
-std::vector<torch::Tensor> corr_cuda_forward(
-  torch::Tensor fmap1,
-  torch::Tensor fmap2,
-  torch::Tensor coords,
-  int radius)
+std::vector<torch::Tensor> corr_cuda_forward(torch::Tensor fmap1,torch::Tensor fmap2,torch::Tensor coords,int radius)
 {
   const auto B = coords.size(0);
   const auto N = coords.size(1);
@@ -285,31 +278,21 @@ std::vector<torch::Tensor> corr_cuda_forward(
   return {corr};
 }
 
-std::vector<torch::Tensor> corr_cuda_backward(
-  torch::Tensor fmap1,
-  torch::Tensor fmap2,
-  torch::Tensor coords,
-  torch::Tensor corr_grad,
-  int radius)
+std::vector<torch::Tensor> corr_cuda_backward(torch::Tensor fmap1,torch::Tensor fmap2,torch::Tensor coords,torch::Tensor corr_grad,int radius)
 {
   const auto B = coords.size(0);
   const auto N = coords.size(1);
-
   const auto H1 = fmap1.size(1);
   const auto W1 = fmap1.size(2);
   const auto H2 = fmap2.size(1);
   const auto W2 = fmap2.size(2);
   const auto C = fmap1.size(3);
-
   auto opts = fmap1.options();
   auto fmap1_grad = torch::zeros({B, H1, W1, C}, opts);
   auto fmap2_grad = torch::zeros({B, H2, W2, C}, opts);
   auto coords_grad = torch::zeros({B, N, H1, W1, 2}, opts);
-    
   const dim3 blocks(B, (H1+BLOCK_H-1)/BLOCK_H, (W1+BLOCK_W-1)/BLOCK_W);
   const dim3 threads(BLOCK_H, BLOCK_W);
-
-
   corr_backward_kernel<float><<<blocks, threads>>>(
     fmap1.packed_accessor32<float,4,torch::RestrictPtrTraits>(),
     fmap2.packed_accessor32<float,4,torch::RestrictPtrTraits>(),
